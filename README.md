@@ -15,12 +15,26 @@ This project is here to enforce our [GitHub Standards](https://contribute.sonaty
 
 ## Usage
 
-Use this section (and any additional sub-sections) to explain how to use this project.
+### Running Locally
 
-Include:
-- Installation
-- Configuration
-- Execution
+You will need:
+- Python 3.12
+- Poetry >= 1.8.1
+
+1. Clone this repository
+2. Install dependencies by running `poetry install`
+3. Set your `GH_TOKEN` environment variable (see below) and then run `python -m github_standards`
+
+## GitHub Token Requirements
+
+You will need a GitHub Personal Access (Fine Grained) Token with the following permissions:
+
+- Repository Access: All Repositories
+- Repository Permissions:
+  - Administration: Read + Write
+  - Contents: Read Only
+  - Custom Properties: Read Only
+  - Metadata: Read Only (Mandatory)
 
 ## Development
 
