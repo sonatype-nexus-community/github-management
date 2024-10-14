@@ -22,7 +22,7 @@ jobs:
                   poetry-version: ${{ env.POETRY_VERSION }}
 
             - name: Install dependencies
-              run: poetry install --no-root
+              run: poetry install
 
             - name: Apply Standards
               run: python -m github_standards > output.txt
