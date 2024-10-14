@@ -25,7 +25,7 @@ jobs:
               run: poetry install
 
             - name: Apply Standards
-              run: python -m github_standards > output.txt
+              run: poetry run python -m github_standards > output.txt
               env:
                 GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
