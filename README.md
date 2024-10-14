@@ -53,8 +53,8 @@ This project is part of the [Sonatype Nexus Community](https://github.com/sonaty
 Last but not least of all - have fun!
 
 <!-- Links Section -->
-[shield_gh-workflow-test]: https://img.shields.io/github/actions/workflow/status/sonatype-nexus-community/github-management/test.yml?branch=main&logo=GitHub&logoColor=white "build"
+[shield_gh-workflow-test]: https://img.shields.io/github/actions/workflow/status/sonatype-nexus-community/github-management/apply-standards.yaml?branch=main&logo=GitHub&logoColor=white "build"
 [shield_license]: https://img.shields.io/github/license/sonatype-nexus-community/github-management?logo=open%20source%20initiative&logoColor=white "license"
 
-[link_gh-workflow-test]: https://github.com/sonatype-nexus-community/github-management/actions/workflows/test.yml?query=branch%3Amain
+[link_gh-workflow-test]: https://github.com/sonatype-nexus-community/github-management/actions/workflows/apply-standards.yaml?query=branch%3Amain
 [license_file]: https://github.com/sonatype-nexus-community/github-management/blob/main/LICENSE

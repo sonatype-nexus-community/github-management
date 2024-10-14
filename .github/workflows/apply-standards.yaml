@@ -1,0 +1,36 @@
+name: Enforce Standards
+
+on:
+    workflow_dispatch:
+
+jobs:
+    enforce-standards:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Configure Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: '3.12'
+
+            - name: Install poetry
+              # see https://github.com/marketplace/actions/setup-poetry
+              uses: Gr1N/setup-poetry@v9
+              with:
+                  poetry-version: ${{ env.POETRY_VERSION }}
+
+            - name: Install dependencies
+              run: poetry install --no-root
+
+            - name: Apply Standards
+              run: python -m github_standards > output.txt
+              env:
+                GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+            - name: Save Run Output
+              uses: actions/upload-artifact@v4
+              with:
+                name: apply-standards-log
+                path: output.txt
