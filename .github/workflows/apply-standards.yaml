@@ -3,6 +3,10 @@ name: Enforce Standards
 on:
     workflow_dispatch:
 
+    # Run every day at 05:00 UTC
+    schedule:
+      - cron: '0 5 * * *'
+
 jobs:
     enforce-standards:
         runs-on: ubuntu-latest
