@@ -90,7 +90,7 @@ def main() -> None:
         # List all Repos
         for repo in gh_org.get_repos():
             if repo.custom_properties.get('Auto-Apply-Standards', 'false') != 'false':
-                apply_standards_to_repo(repo=repo)
+                apply_standards_to_repo(repo=repo, do_actual_work=True)
             else:
                 print(f'Skipping {repo.name} as Auto-Apply-Standards is not true')
 
