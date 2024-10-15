@@ -20,6 +20,8 @@ import os
 from github import Auth, Github
 from github.Repository import Repository
 
+from github_standards.standards import check_and_apply_standard_properties_to_repo
+
 GH_ORG_NAME = 'sonatype-nexus-community'
 EXCLUDED_REPO_NAMES = ['.github']
 
@@ -33,20 +35,7 @@ def apply_standards_to_repo(repo: Repository, do_actual_work: bool = False) -> N
 
         print(f'    Enforcing Standards for {repo.name}')
         if do_actual_work:
-            repo.edit(
-                allow_auto_merge=False,
-                allow_merge_commit=True,
-                allow_rebase_merge=False,
-                allow_squash_merge=True,
-                allow_update_branch=True,
-                delete_branch_on_merge=True,
-                has_discussions=True,
-                has_issues=True,
-                has_projects=False,
-                has_wiki=False,
-                web_commit_signoff_required=True
-            )
-        print(f'        Repo Standards applied')
+            check_and_apply_standard_properties_to_repo(repo)
 
         main_branch = repo.default_branch
         if main_branch != 'main':
