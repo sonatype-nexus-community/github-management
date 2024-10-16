@@ -30,12 +30,11 @@ def apply_standards_to_repo(repo: Repository, do_actual_work: bool = False) -> N
     if repo.name not in EXCLUDED_REPO_NAMES:
         print(f'Reviewing Repo: {repo.name}...')
 
-        if repo.custom_properties.get('Owner-Assigned', 'false') == 'false':
+        if repo.custom_properties.get('Auto-Apply-Standards', 'false') == 'false':
             print(f'    Skipping {repo.name} as not part of standards management (yet!)')
 
-        print(f'    Enforcing Standards for {repo.name}')
-        if do_actual_work:
-            check_and_apply_standard_properties_to_repo(repo)
+        print(f'    Assessing Standards for {repo.name}')
+        check_and_apply_standard_properties_to_repo(repo, do_actual_work)
 
         main_branch = repo.default_branch
         if main_branch != 'main':
@@ -73,15 +72,15 @@ def main() -> None:
     with Github(auth=Auth.Token(gh_token)) as gh:
         gh_org = gh.get_organization(GH_ORG_NAME)
 
-        # repo = gh_org.get_repo('github-management')
-        # apply_standards_to_repo(repo=repo, do_actual_work=True)
+        repo = gh_org.get_repo('github-management')
+        apply_standards_to_repo(repo=repo, do_actual_work=True)
 
         # List all Repos
-        for repo in gh_org.get_repos():
-            if repo.custom_properties.get('Auto-Apply-Standards', 'false') != 'false':
-                apply_standards_to_repo(repo=repo, do_actual_work=True)
-            else:
-                print(f'Skipping {repo.name} as Auto-Apply-Standards is not true')
+        # for repo in gh_org.get_repos():
+        #     if repo.custom_properties.get('Auto-Apply-Standards', 'false') != 'false':
+        #         apply_standards_to_repo(repo=repo, do_actual_work=True)
+        #     else:
+        #         print(f'Skipping {repo.name} as Auto-Apply-Standards is not true')
 
 
 if __name__ == "__main__":
