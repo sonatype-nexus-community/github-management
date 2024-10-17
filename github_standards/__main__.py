@@ -72,15 +72,15 @@ def main() -> None:
     with Github(auth=Auth.Token(gh_token)) as gh:
         gh_org = gh.get_organization(GH_ORG_NAME)
 
-        repo = gh_org.get_repo('github-management')
-        apply_standards_to_repo(repo=repo, do_actual_work=True)
+        # repo = gh_org.get_repo('github-management')
+        # apply_standards_to_repo(repo=repo, do_actual_work=True)
 
         # List all Repos
-        # for repo in gh_org.get_repos():
-        #     if repo.custom_properties.get('Auto-Apply-Standards', 'false') != 'false':
-        #         apply_standards_to_repo(repo=repo, do_actual_work=True)
-        #     else:
-        #         print(f'Skipping {repo.name} as Auto-Apply-Standards is not true')
+        for repo in gh_org.get_repos():
+            if repo.custom_properties.get('Auto-Apply-Standards', 'false') != 'false':
+                apply_standards_to_repo(repo=repo, do_actual_work=True)
+            else:
+                print(f'Skipping {repo.name} as Auto-Apply-Standards is not true')
 
 
 if __name__ == "__main__":
