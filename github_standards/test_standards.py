@@ -63,7 +63,7 @@ class TestStandardProps(unittest.TestCase):
                                       "web_commit_signoff_required": True},
                           completed='')
         repo.edit = MagicMock()
-        result = standards.check_and_apply_standard_properties_to_repo(repo)
+        result = standards.check_and_apply_standard_properties_to_repo(repo, True)
 
         self.assertEqual(result, "has_projects")  # add assertion here
         repo.edit.assert_called_with(allow_auto_merge=False,
@@ -96,7 +96,7 @@ class TestStandardProps(unittest.TestCase):
                                       "web_commit_signoff_required": True},
                           completed='')
         repo.edit = MagicMock()
-        result = standards.check_and_apply_standard_properties_to_repo(repo)
+        result = standards.check_and_apply_standard_properties_to_repo(repo, True)
 
         self.assertEqual(result, "allow_squash_merge,has_projects")  # add assertion here
         repo.edit.assert_called_with(allow_auto_merge=False,
