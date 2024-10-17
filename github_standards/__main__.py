@@ -44,6 +44,7 @@ def apply_standards_to_repo(repo: Repository, do_actual_work: bool = False) -> N
             main_b = repo.get_branch(main_branch)
 
             if main_b:
+                # ToDo: Check if out of spec, and only apply changes if needed
                 main_b.edit_protection(
                     allow_deletions=False,
                     allow_force_pushes=False,
