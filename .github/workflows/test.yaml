@@ -26,9 +26,9 @@ jobs:
         # see https://github.com/marketplace/actions/setup-poetry
         uses: Gr1N/setup-poetry@v9
         with:
-          poetry-version: 1.8.1
+          poetry-version: 1.8.4
       - name: Install dependencies
         run: poetry install
       - name: Run tests
         run: |
-          python -m unittest github_standards/test_standards.py
+          poetry run python -m unittest discover -s github_standards/test -p '*.py'
