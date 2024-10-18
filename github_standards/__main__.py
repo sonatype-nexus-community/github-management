@@ -20,6 +20,8 @@ import os
 from github import Auth, Github
 from github.Repository import Repository
 
+from github_standards.standards import check_and_apply_standard_properties_to_repo, check_and_apply_standard_properties_to_branch
+
 GH_ORG_NAME = 'sonatype-nexus-community'
 EXCLUDED_REPO_NAMES = ['.github']
 
@@ -28,25 +30,11 @@ def apply_standards_to_repo(repo: Repository, do_actual_work: bool = False) -> N
     if repo.name not in EXCLUDED_REPO_NAMES:
         print(f'Reviewing Repo: {repo.name}...')
 
-        if repo.custom_properties.get('Owner-Assigned', 'false') == 'false':
+        if repo.custom_properties.get('Auto-Apply-Standards', 'false') == 'false':
             print(f'    Skipping {repo.name} as not part of standards management (yet!)')
 
-        print(f'    Enforcing Standards for {repo.name}')
-        if do_actual_work:
-            repo.edit(
-                allow_auto_merge=False,
-                allow_merge_commit=True,
-                allow_rebase_merge=False,
-                allow_squash_merge=True,
-                allow_update_branch=True,
-                delete_branch_on_merge=True,
-                has_discussions=True,
-                has_issues=True,
-                has_projects=False,
-                has_wiki=False,
-                web_commit_signoff_required=True
-            )
-        print(f'        Repo Standards applied')
+        print(f'    Assessing Standards for {repo.name}')
+        check_and_apply_standard_properties_to_repo(repo, do_actual_work)
 
         main_branch = repo.default_branch
         if main_branch != 'main':
@@ -54,15 +42,8 @@ def apply_standards_to_repo(repo: Repository, do_actual_work: bool = False) -> N
 
         if do_actual_work:
             main_b = repo.get_branch(main_branch)
-
             if main_b:
-                main_b.edit_protection(
-                    allow_deletions=False,
-                    allow_force_pushes=False,
-                    require_code_owner_reviews=True,
-                    required_approving_review_count=1,
-                )
-                main_b.add_required_signatures()
+                check_and_apply_standard_properties_to_branch(repo, main_b, do_actual_work)
 
                 # @todo: Status Checks as this relies upon GitHub actions being present
                 # main_b.edit_required_status_checks(strict=True, contexts=[
