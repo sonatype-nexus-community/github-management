@@ -208,7 +208,6 @@ class TestStandardProps(unittest.TestCase):
         bp = BranchProtection(requester=requester, headers='', attributes={"url": MOCK_REPO_URL,
                                                                            "allow_deletions": {"enabled": False},
                                                                            "allow_force_pushes": {"enabled": True}}, # change 1
-                              # this is the only change
                               completed='')
         branch.get_protection.return_value = bp
 
