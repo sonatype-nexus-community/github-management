@@ -20,7 +20,7 @@ import os
 from github import Auth, Github
 from github.Repository import Repository
 
-from github_standards.standards import check_and_apply_standard_properties_to_repo
+from github_standards.standards import check_and_apply_standard_properties_to_repo, check_and_apply_standard_properties_to_branch
 
 GH_ORG_NAME = 'sonatype-nexus-community'
 EXCLUDED_REPO_NAMES = ['.github']
@@ -42,16 +42,8 @@ def apply_standards_to_repo(repo: Repository, do_actual_work: bool = False) -> N
 
         if do_actual_work:
             main_b = repo.get_branch(main_branch)
-
             if main_b:
-                # ToDo: Check if out of spec, and only apply changes if needed
-                main_b.edit_protection(
-                    allow_deletions=False,
-                    allow_force_pushes=False,
-                    require_code_owner_reviews=True,
-                    required_approving_review_count=1,
-                )
-                main_b.add_required_signatures()
+                check_and_apply_standard_properties_to_branch(repo, main_b, do_actual_work)
 
                 # @todo: Status Checks as this relies upon GitHub actions being present
                 # main_b.edit_required_status_checks(strict=True, contexts=[

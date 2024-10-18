@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from github import Repository
+from github import Repository, Branch
 
 
 def check_and_apply_standard_properties_to_repo(repo: Repository, do_actual_work: bool = False) -> str:
@@ -49,3 +49,57 @@ def check_and_apply_standard_properties_to_repo(repo: Repository, do_actual_work
             print(f'        Repo Standards applied')
 
     return props_not_as_per_standards
+
+
+def check_and_apply_standard_properties_to_branch(repo, branch: Branch, do_actual_work: bool = False) -> str:
+    # check if branch is already in spec
+    standard_branch_protection = {
+        'allow_deletions': False,
+        'allow_force_pushes': False,
+    }
+    props_not_as_per_standards = ''
+    for prop, val in standard_branch_protection.items():
+        if getattr(branch.get_protection(), prop) != val:
+            print(f'        {prop} is not set to {val} in {repo.name}')
+            if props_not_as_per_standards != '':
+                props_not_as_per_standards = f'{props_not_as_per_standards},'
+            props_not_as_per_standards = props_not_as_per_standards + prop
+
+    if props_not_as_per_standards != '':
+        print(f'    Setting Standards for {repo.name} - missing {props_not_as_per_standards}')
+        if do_actual_work:
+            branch.edit_protection(**standard_branch_protection)
+            print(f'        Branch Standards applied')
+
+
+    standard_pull_request_reviews = {
+        'require_code_owner_reviews': True,
+        'required_approving_review_count': 1, # Perhaps we should allow this to be greater than 1?
+    }
+    missing_pr_standards = ''
+    for prop, val in standard_pull_request_reviews.items():
+        if getattr(branch.get_required_pull_request_reviews(), prop) != val:
+            print(f'        {prop} is not set to {val} in {repo.name}')
+            if missing_pr_standards != '':
+                missing_pr_standards = f'{missing_pr_standards},'
+            missing_pr_standards = missing_pr_standards + prop
+
+    if missing_pr_standards != '':
+        print(f'    Setting Standards for {repo.name} - missing {missing_pr_standards}')
+        if do_actual_work:
+            branch.edit_protection(**standard_pull_request_reviews)
+            print(f'        Branch Standards applied')
+
+    if not branch.get_required_signatures():
+        print(f'        required_signatures is not set to True in {repo.name}')
+        if missing_pr_standards != '':
+            missing_pr_standards = f'{missing_pr_standards},'
+        missing_pr_standards = missing_pr_standards + 'required_signatures'
+        if do_actual_work:
+            branch.add_required_signatures()
+            print(f'        Branch required signatures applied')
+
+    if missing_pr_standards != '':
+        props_not_as_per_standards = f'{props_not_as_per_standards},'
+
+    return props_not_as_per_standards + missing_pr_standards
