@@ -173,7 +173,7 @@ class TestStandardProps(unittest.TestCase):
         # noinspection PyTypeChecker
         bp = BranchProtection(requester=requester, headers='', attributes={"url": MOCK_REPO_URL,
                                                                            "allow_deletions": {"enabled": False},
-                                                                           "allow_force_pushes": {"enabled": True}}, # out of spec
+                                                                           "allow_force_pushes": {"enabled": True}},
                               # this is the only change
                               completed='')
         branch.get_protection.return_value = bp
@@ -195,7 +195,7 @@ class TestStandardProps(unittest.TestCase):
 
         self.assertEqual(result, "allow_force_pushes")  # add assertion here
         branch.edit_protection.assert_called_once_with(allow_deletions=False,
-                                                  allow_force_pushes=False)  # this is the only change
+                                                       allow_force_pushes=False)  # this is the only change
 
     def test_props_out_of_spec_branch_makes_many_changes(self):
         repo = self.create_mock_repo()
@@ -207,7 +207,8 @@ class TestStandardProps(unittest.TestCase):
         # noinspection PyTypeChecker
         bp = BranchProtection(requester=requester, headers='', attributes={"url": MOCK_REPO_URL,
                                                                            "allow_deletions": {"enabled": False},
-                                                                           "allow_force_pushes": {"enabled": True}}, # change 1
+                                                                           "allow_force_pushes": {"enabled": True}},
+                              # change 1
                               completed='')
         branch.get_protection.return_value = bp
 
@@ -217,7 +218,8 @@ class TestStandardProps(unittest.TestCase):
         # noinspection PyTypeChecker
         rprr = RequiredPullRequestReviews(requester=requester, headers='', attributes={"url": MOCK_REPO_URL,
                                                                                        'require_code_owner_reviews': True,
-                                                                                       'required_approving_review_count': 0}, # change 2
+                                                                                       'required_approving_review_count': 0},
+                                          # change 2
                                           completed='')
         branch.get_required_pull_request_reviews.return_value = rprr
 
