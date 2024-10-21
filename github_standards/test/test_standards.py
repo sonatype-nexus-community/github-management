@@ -191,7 +191,7 @@ class TestStandardProps(unittest.TestCase):
 
         self.assertEqual(result, "")
         branch.edit_protection.assert_called_once_with(allow_deletions=False,
-                                                       allow_force_pushes=False)  # this is the only change
+                                                       allow_force_pushes=False)
 
     def test_props_out_of_spec_branch_makes_a_change(self):
         repo = self.create_mock_repo()
