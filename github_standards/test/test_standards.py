@@ -19,6 +19,7 @@ import unittest
 
 from unittest.mock import MagicMock
 
+from github import GithubException
 from github.Branch import Branch
 from github.BranchProtection import BranchProtection
 from github.Repository import Repository
@@ -162,6 +163,36 @@ class TestStandardProps(unittest.TestCase):
         result = standards.check_and_apply_standard_properties_to_branch(repo, branch)
 
         self.assertEqual(result, "")
+
+    def test_props_out_of_spec_branch_makes_a_change_no_branch_protection(self):
+        repo = self.create_mock_repo()
+
+        requester = self.create_mock_requester()
+        # noinspection PyTypeChecker
+        branch = Branch(requester='', headers='', attributes={}, completed='')
+        branch.get_protection = MagicMock()
+        # noinspection PyTypeChecker
+        ghe = GithubException(status=404, data=None)
+        branch.get_protection.side_effect = ghe
+
+        branch.edit_protection = MagicMock()
+
+        branch.get_required_pull_request_reviews = MagicMock()
+        # noinspection PyTypeChecker
+        rprr = RequiredPullRequestReviews(requester=requester, headers='', attributes={"url": MOCK_REPO_URL,
+                                                                                       'require_code_owner_reviews': True,
+                                                                                       'required_approving_review_count': 1},
+                                          completed='')
+        branch.get_required_pull_request_reviews.return_value = rprr
+
+        branch.get_required_signatures = MagicMock()
+        branch.get_required_signatures.return_value = True
+
+        result = standards.check_and_apply_standard_properties_to_branch(repo, branch, True)
+
+        self.assertEqual(result, "")
+        branch.edit_protection.assert_called_once_with(allow_deletions=False,
+                                                       allow_force_pushes=False)  # this is the only change
 
     def test_props_out_of_spec_branch_makes_a_change(self):
         repo = self.create_mock_repo()
