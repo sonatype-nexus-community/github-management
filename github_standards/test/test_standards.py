@@ -171,7 +171,6 @@ class TestStandardProps(unittest.TestCase):
         # noinspection PyTypeChecker
         branch = Branch(requester='', headers='', attributes={}, completed='')
         branch.get_protection = MagicMock()
-        # noinspection PyTypeChecker
         ghe = GithubException(status=404, data=None)
         branch.get_protection.side_effect = ghe
 
