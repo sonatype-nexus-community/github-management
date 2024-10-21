@@ -15,7 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from github import Repository, Branch
+from typing import Optional
+
+from github import Repository, Branch, GithubException
+from github.BranchProtection import BranchProtection
 
 
 def check_and_apply_standard_properties_to_repo(repo: Repository, do_actual_work: bool = False) -> str:
@@ -52,29 +55,36 @@ def check_and_apply_standard_properties_to_repo(repo: Repository, do_actual_work
 
 
 def check_and_apply_standard_properties_to_branch(repo, branch: Branch, do_actual_work: bool = False) -> str:
+    branch_protection: Optional[BranchProtection] = None
+    try:
+        branch_protection = branch.get_protection()
+    except GithubException as e:
+        # GH returns a 404 when Branch Protection is not yet enabled for the branch in question
+        print(f'    Branch {branch} is not protected in {repo.name}')
+
     # check if branch is already in spec
     standard_branch_protection = {
         'allow_deletions': False,
         'allow_force_pushes': False,
     }
     props_not_as_per_standards = ''
-    for prop, val in standard_branch_protection.items():
-        if getattr(branch.get_protection(), prop) != val:
-            print(f'        {prop} is not set to {val} in {repo.name}')
-            if props_not_as_per_standards != '':
-                props_not_as_per_standards = f'{props_not_as_per_standards},'
-            props_not_as_per_standards = props_not_as_per_standards + prop
+    if branch_protection is not None:
+        for prop, val in standard_branch_protection.items():
+            if getattr(branch_protection, prop) != val:
+                print(f'        {prop} is not set to {val} in {repo.name}')
+                if props_not_as_per_standards != '':
+                    props_not_as_per_standards = f'{props_not_as_per_standards},'
+                props_not_as_per_standards = props_not_as_per_standards + prop
 
-    if props_not_as_per_standards != '':
+    if branch_protection is None or props_not_as_per_standards != '':
         print(f'    Setting Standards for {repo.name} - missing {props_not_as_per_standards}')
         if do_actual_work:
             branch.edit_protection(**standard_branch_protection)
             print(f'        Branch Standards applied')
 
-
     standard_pull_request_reviews = {
         'require_code_owner_reviews': True,
-        'required_approving_review_count': 1, # Perhaps we should allow this to be greater than 1?
+        'required_approving_review_count': 1,  # Perhaps we should allow this to be greater than 1?
     }
     missing_pr_standards = ''
     for prop, val in standard_pull_request_reviews.items():
