@@ -58,7 +58,7 @@ def check_and_apply_standard_properties_to_branch(repo, branch: Branch, do_actua
     branch_protection: Optional[BranchProtection] = None
     try:
         branch_protection = branch.get_protection()
-    except GithubException as e:
+    except GithubException:
         # GH returns a 404 when Branch Protection is not yet enabled for the branch in question
         print(f'    Branch {branch} is not protected in {repo.name}')
 
