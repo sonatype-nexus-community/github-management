@@ -29,6 +29,8 @@ jobs:
               run: poetry install
 
             - name: Apply Standards
+              # tee output.txt is helpful for local debugging of CI run
+              #run: poetry run python -m github_standards | tee output.txt
               run: poetry run python -m github_standards > output.txt
               env:
                 GH_TOKEN: ${{ secrets.GH_TOKEN }}
