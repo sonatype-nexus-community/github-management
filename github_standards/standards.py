@@ -79,8 +79,11 @@ def check_and_apply_standard_properties_to_branch(repo, branch: Branch, do_actua
     if branch_protection is None or props_not_as_per_standards != '':
         print(f'    Setting Standards for {repo.name} - missing {props_not_as_per_standards}')
         if do_actual_work:
-            branch.edit_protection(**standard_branch_protection)
-            print(f'        Branch Standards applied')
+            try:
+                branch.edit_protection(**standard_branch_protection)
+                print(f'        Branch Standards applied')
+            except GithubException as e:
+                print(f'FAIL:   Failed to apply branch standards for {repo.name}')
 
     standard_pull_request_reviews = {
         'require_code_owner_reviews': True,
