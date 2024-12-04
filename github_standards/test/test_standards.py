@@ -193,6 +193,46 @@ class TestStandardProps(unittest.TestCase):
         branch.edit_protection.assert_called_once_with(allow_deletions=False,
                                                        allow_force_pushes=False)
 
+    # This test is to cover the case where the branch protection is disabled on the repo and the CI tries to enable it,
+    # but the attempt fails. We want CI to fail in this situation.
+    def test_props_out_of_spec_branch_makes_a_change_no_branch_protection_failure(self):
+        repo = self.create_mock_repo()
+
+        requester = self.create_mock_requester()
+        # noinspection PyTypeChecker
+        branch = Branch(requester='', headers='', attributes={}, completed='')
+        branch.get_protection = MagicMock()
+        ghe = GithubException(status=404, data=None)
+        branch.get_protection.side_effect = ghe
+
+        branch.edit_protection = MagicMock()
+        # this is similar to the error we get when CI tries to enable branch protections on a repo that doesn't have it
+        ghe_branch_protection = GithubException(status=404, data='Branch protection has been disabled on this repository.')
+        branch.edit_protection.side_effect = ghe_branch_protection
+
+        branch.get_required_pull_request_reviews = MagicMock()
+        # noinspection PyTypeChecker
+        rprr = RequiredPullRequestReviews(requester=requester, headers='', attributes={"url": MOCK_REPO_URL,
+                                                                                       'require_code_owner_reviews': True,
+                                                                                       'required_approving_review_count': 1},
+                                          completed='')
+        branch.get_required_pull_request_reviews.return_value = rprr
+
+        branch.get_required_signatures = MagicMock()
+        branch.get_required_signatures.return_value = True
+
+        # result = standards.check_and_apply_standard_properties_to_branch(repo, branch, True)
+        result = ""
+        try :
+            result = standards.check_and_apply_standard_properties_to_branch(repo, branch, True)
+        except GithubException as e:
+            self.assertEqual(e.status, 404)
+            self.assertEqual(e.data, 'Branch protection has been disabled on this repository.')
+
+        self.assertEqual(result, "")
+        branch.edit_protection.assert_called_once_with(allow_deletions=False,
+                                                       allow_force_pushes=False)
+
     def test_props_out_of_spec_branch_makes_a_change(self):
         repo = self.create_mock_repo()
 
