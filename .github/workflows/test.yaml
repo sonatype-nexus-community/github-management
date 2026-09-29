@@ -32,3 +32,20 @@ jobs:
       - name: Run tests
         run: |
           poetry run python -m unittest discover -s github_standards/test -p '*.py'
+
+  sonatype-lifecycle:
+    name: Sonatype Lifecycle Policy Evaluation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sonatype Lifecycle Evaluate
+        uses: sonatype/actions/evaluate@v1
+        with:
+          iq-server-url: ${{ vars.SONATYPE_PLATFORM_URL }}
+          username: ${{ secrets.SONATYPE_LIFECYCLE_USERNAME }}
+          password: ${{ secrets.SONATYPE_LIFECYCLE_PASSWORD }}
+          application-id: github-management
+          stage: ${{ github.ref == 'refs/heads/main' && 'build' || 'develop' }}
+          scan-targets: '.'
