@@ -20,7 +20,8 @@ import os
 from github import Auth, Github
 from github.Repository import Repository
 
-from github_standards.standards import check_and_apply_standard_properties_to_repo, check_and_apply_standard_properties_to_branch
+from github_standards.standards import check_and_apply_standard_properties_to_repo, check_and_apply_standard_properties_to_branch, \
+    check_and_apply_immutable_releases
 
 GH_ORG_NAME = 'sonatype-nexus-community'
 EXCLUDED_REPO_NAMES = ['.github']
@@ -35,6 +36,7 @@ def apply_standards_to_repo(repo: Repository, do_actual_work: bool = False) -> N
 
         print(f'    Assessing Standards for {repo.name}')
         check_and_apply_standard_properties_to_repo(repo, do_actual_work)
+        check_and_apply_immutable_releases(repo, do_actual_work)
 
         main_branch = repo.default_branch
         if main_branch != 'main':

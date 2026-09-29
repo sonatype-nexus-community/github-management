@@ -126,6 +126,62 @@ class TestStandardProps(unittest.TestCase):
                           completed='')
         return repo
 
+    def test_immutable_releases_already_enabled_makes_no_change(self):
+        repo = self.create_mock_repo()
+        repo._requester = MagicMock()
+        repo._requester.requestJsonAndCheck.return_value = (None, {"enabled": True, "enforced_by_owner": False})
+
+        result = standards.check_and_apply_immutable_releases(repo, True)
+
+        self.assertEqual(result, "")
+        repo._requester.requestJsonAndCheck.assert_called_once_with('GET', f'{MOCK_REPO_URL}/immutable-releases')
+
+    def test_immutable_releases_not_configured_gets_enabled(self):
+        repo = self.create_mock_repo()
+        repo._requester = MagicMock()
+        ghe = GithubException(status=404, data=None)
+        repo._requester.requestJsonAndCheck.side_effect = [ghe, (None, None)]
+
+        result = standards.check_and_apply_immutable_releases(repo, True)
+
+        self.assertEqual(result, "immutable_releases")
+        repo._requester.requestJsonAndCheck.assert_any_call('GET', f'{MOCK_REPO_URL}/immutable-releases')
+        repo._requester.requestJsonAndCheck.assert_any_call('PUT', f'{MOCK_REPO_URL}/immutable-releases')
+
+    def test_immutable_releases_not_configured_dry_run_makes_no_call(self):
+        repo = self.create_mock_repo()
+        repo._requester = MagicMock()
+        ghe = GithubException(status=404, data=None)
+        repo._requester.requestJsonAndCheck.side_effect = [ghe]
+
+        result = standards.check_and_apply_immutable_releases(repo)
+
+        self.assertEqual(result, "immutable_releases")
+        repo._requester.requestJsonAndCheck.assert_called_once_with('GET', f'{MOCK_REPO_URL}/immutable-releases')
+
+    def test_immutable_releases_disabled_gets_enabled(self):
+        repo = self.create_mock_repo()
+        repo._requester = MagicMock()
+        repo._requester.requestJsonAndCheck.side_effect = [
+            (None, {"enabled": False, "enforced_by_owner": False}),
+            (None, None),
+        ]
+
+        result = standards.check_and_apply_immutable_releases(repo, True)
+
+        self.assertEqual(result, "immutable_releases")
+        repo._requester.requestJsonAndCheck.assert_any_call('PUT', f'{MOCK_REPO_URL}/immutable-releases')
+
+    def test_immutable_releases_other_error_is_raised(self):
+        repo = self.create_mock_repo()
+        repo._requester = MagicMock()
+        ghe = GithubException(status=403, data='Forbidden')
+        repo._requester.requestJsonAndCheck.side_effect = ghe
+
+        with self.assertRaises(GithubException) as context:
+            standards.check_and_apply_immutable_releases(repo, True)
+        self.assertEqual(context.exception.status, 403)
+
     @staticmethod
     def create_mock_requester():
         # noinspection PyTypeChecker
