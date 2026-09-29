@@ -54,6 +54,25 @@ def check_and_apply_standard_properties_to_repo(repo: Repository, do_actual_work
     return props_not_as_per_standards
 
 
+def check_and_apply_immutable_releases(repo: Repository, do_actual_work: bool = False) -> str:
+    enabled = False
+    try:
+        _, data = repo._requester.requestJsonAndCheck('GET', f'{repo.url}/immutable-releases')
+        enabled = data.get('enabled', False)
+    except GithubException as e:
+        if e.status != 404:
+            raise
+
+    if not enabled:
+        print(f'        immutable_releases is not set to True in {repo.name}')
+        if do_actual_work:
+            repo._requester.requestJsonAndCheck('PUT', f'{repo.url}/immutable-releases')
+            print(f'        Repo immutable releases applied')
+        return 'immutable_releases'
+
+    return ''
+
+
 def check_and_apply_standard_properties_to_branch(repo, branch: Branch, do_actual_work: bool = False) -> str:
     branch_protection: Optional[BranchProtection] = None
     try:
